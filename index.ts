@@ -2,6 +2,7 @@ import { existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import * as path from 'path';
 import axios, { AxiosError } from 'axios';
+import {JSDOM} from 'jsdom';
 
 function fetchPage(url: string): Promise<string | undefined> {
   console.log(`Now fetching ${url}...`)
@@ -25,14 +26,15 @@ export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
     )
   ) {
     console.log(`I read ${url} from cache`);
-    const data = await readFile(
+    const HTMLData = await readFile(
       path.resolve(
         __dirname,
         `.cache/${Buffer.from(url).toString('base64')}.html`,
       ),
       { encoding: 'utf8' },
     );
-    return data
+    const dom = new JSDOM(HTMLData);
+    return dom.window.document;
   } else {
     console.log(`I fetched ${url} fresh`);
     const HTMLData = await fetchPage(url);
@@ -46,8 +48,11 @@ export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
         { encoding: 'utf8' },
       );
     }
-    return HTMLData;
+    const dom = new JSDOM(HTMLData);
+    return dom.window.document;
   }
 }
+
+
 
 fetchFromWebOrCache('https://tomvanantwerp.com')
