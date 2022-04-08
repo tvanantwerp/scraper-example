@@ -1,36 +1,36 @@
-import { existsSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import * as path from 'path';
+import { resolve } from 'path';
 import axios, { AxiosError } from 'axios';
-import {JSDOM} from 'jsdom';
+import { JSDOM } from 'jsdom';
 
 function fetchPage(url: string): Promise<string | undefined> {
-  console.log(`Now fetching ${url}...`)
-  const HTMLData = axios.get(url).then(res => res.data).catch((error: AxiosError) => {
-    console.error(`There was an error with ${error.config.url}.`)
-    console.error(error.toJSON())
-  })
+  const HTMLData = axios
+    .get(url)
+    .then(res => res.data)
+    .catch((error: AxiosError) => {
+      console.error(`There was an error with ${error.config.url}.`);
+      console.error(error.toJSON());
+    });
 
   return HTMLData;
 }
 
 export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
+  // If the cache folder doesn't exist, create it
+  if (!existsSync(resolve(__dirname, '.cache'))) {
+    mkdirSync('.cache');
+  }
   console.log(`Getting data for ${url}...`);
   if (
     !ignoreCache &&
     existsSync(
-      path.resolve(
-        __dirname,
-        `.cache/${Buffer.from(url).toString('base64')}.html`,
-      ),
+      resolve(__dirname, `.cache/${Buffer.from(url).toString('base64')}.html`),
     )
   ) {
     console.log(`I read ${url} from cache`);
     const HTMLData = await readFile(
-      path.resolve(
-        __dirname,
-        `.cache/${Buffer.from(url).toString('base64')}.html`,
-      ),
+      resolve(__dirname, `.cache/${Buffer.from(url).toString('base64')}.html`),
       { encoding: 'utf8' },
     );
     const dom = new JSDOM(HTMLData);
@@ -40,7 +40,7 @@ export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
     const HTMLData = await fetchPage(url);
     if (!ignoreCache && HTMLData) {
       writeFile(
-        path.resolve(
+        resolve(
           __dirname,
           `.cache/${Buffer.from(url).toString('base64')}.html`,
         ),
