@@ -53,6 +53,34 @@ export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
   }
 }
 
+function extractData(document: Document) {
+  const writingLinks: HTMLAnchorElement[] = Array.from(
+    document.querySelectorAll('a.titlelink'),
+  );
+  return writingLinks.map(link => {
+    return {
+      title: link.text,
+      url: link.href,
+    };
+  });
+}
 
+function saveData(filename: string, data: any) {
+  if (!existsSync(resolve(__dirname, 'data'))) {
+    mkdirSync('data');
+  }
+  writeFile(resolve(__dirname, `data/${filename}.json`), JSON.stringify(data), {
+    encoding: 'utf8',
+  });
+}
 
-fetchFromWebOrCache('https://tomvanantwerp.com')
+async function getData() {
+  const document = await fetchFromWebOrCache(
+    'https://news.ycombinator.com/',
+    true,
+  );
+  const data = extractData(document);
+  saveData('hacker-news-links', data);
+}
+
+getData();
