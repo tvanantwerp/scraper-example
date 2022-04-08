@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "scrape": "ts-node ./index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^17.0.23",
+    "axios": "^0.26.1",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   }
