@@ -16,7 +16,7 @@ function fetchPage(url: string): Promise<string | undefined> {
   return HTMLData;
 }
 
-export async function fetchFromWebOrCache(url: string, ignoreCache = false) {
+async function fetchFromWebOrCache(url: string, ignoreCache = false) {
   // If the cache folder doesn't exist, create it
   if (!existsSync(resolve(__dirname, '.cache'))) {
     mkdirSync('.cache');
